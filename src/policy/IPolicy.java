@@ -11,38 +11,41 @@ import prop.Card;
  * normally the double rate is 1.5.
  */
 public interface IPolicy {
-    public final int STATUS_IM_OK = 0; // standby mode
-    // MSG_TYPE_BUST
-    public final int STATUS_BUST = 1;
-    public final int STATUS_BLACKJACK = 2;
-    public final int STATUS_HIGH_FIVE = 3;
-    public final int STATUS_END_TURN = 4;
-    // after surrender, i'm out of this round, means noneed to count me in when summing
-    // up the result.
-    public final int STATUS_IM_OUT = 5;
 
-/*    // A special state for the dealer, under such state he must hit another card till reaches
-    // the limited number(normally equals to 17).
-    public final int STATUS_STILL_HUNGRY = 6;
-    public final int STATUS_IM_FULL = 7;*/
+	// Standby means this player still in the game process so he can make his choice of policy.
+    public static final int STATUS_STAND_BY = 0;
+    // Bust means total value of cards exceeds 21 and this player will lose his money.
+    public static final int STATUS_BUST = 1;
+    // Blackjack is a bonus cards which means this player can got money
+    // before the dealer finish his hand.
+    public static final int STATUS_BLACKJACK = 2;
+    // High five is a bonus cards which means this player can got money before the dealer
+    // finish his hand.
+    public static final int STATUS_HIGH_FIVE = 3;
+    // End turn means this player stop to make any choice and wait to be checked.
+    public static final int STATUS_END_TURN = 4;
+    // I'm out means no need to check this player before next round.
+    // This state can be switched from other status like STATUS_BUST, STATUS_BLACKJACK.
+    public static final int STATUS_OUT = 5;
 
-    public final int BLACK_JACK_VALUE = 21;
-    public final int HIGH_FIVE_NUMBER = 5;
+    public static final int BET_MONEY_BOTTOM = 10; // bottom line is 10RMB
+    public static final int BLACK_JACK_VALUE = 21;
+    public static final int HIGH_FIVE_NUMBER = 5;
 
-    /**Policy for a player*/
-    // Just gimme my card no matter what.
-    // Return int(original design) is redundant, since we got Player himself to keep the status.
+    /**Policy for the player*/
     public void hit(Player player, Card card);
     public void stand(Player player);
-    public void doubleWager(Player player, Card card);
+    public boolean doubleWager(Player player, Card card);
     public void surrender(Player player);
     public void split(Player player);
     public void insurance(Player player);
 
-
-    /**Policy for a dealer*/
+    /**Policy for the dealer*/
     // The dealer never doubles, splits, or surrenders. It only draw cards while the condition
     // is not met, normally the total value of cards is less than 17.
-    // If the dealer busts, all remaining player hands win.
+    // If the dealer busts, all remaining players win.
     public void draw(Player player, Card card);
+
+    /**Policy for both player and dealer*/
+    public void check(Player firstPlayer, Player secondPlayer);
 }

@@ -20,7 +20,8 @@ public class PolicyAdapter implements IPolicy {
     }
 
     @Override
-    public void doubleWager(Player player, Card card) {
+    public boolean doubleWager(Player player, Card card) {
+    	return false;
     }
 
     @Override
@@ -39,4 +40,7 @@ public class PolicyAdapter implements IPolicy {
     public void draw(Player player, Card card) {
     }
 
+    @Override
+    public void check(Player firstPlayer, Player secondPlayer) {
+    }
 }

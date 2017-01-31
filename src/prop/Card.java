@@ -17,10 +17,9 @@ public class Card {
     @Override
     public String toString() {
         if (visible) {
-            return "[" + displayName + ", " + value + ", " + type + "]";
+            return "[" + displayName + ", " + type + "]";
         } else {
             return "[invisible]";
         }
-        
     }
 }

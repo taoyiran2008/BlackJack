@@ -6,13 +6,15 @@ import java.util.Random;
 import util.LogMan;
 
 public class Decks {
-    private static final String ACE_NAME = "A";
+
+    public static final String ACE_NAME = "A";
+    public static final int SOFT_HAND_VALUE = 11;
+    public static final int HARD_HAND_VALUE = 1;
+
     private static final String[] NAMES = {"2", "3", "4", "5", "6", "7", "8",
         "9", "10", "J", "Q", "K", ACE_NAME};
     private static final int MAX_SIZE = 52;
     // If a player holds an ace valued as 11, the hand is called "soft"
-    private static final int SOFT_HAND_VALUE = 11;
-    private static final int HARD_HAND_VALUE = 1;
     private static final int FACE_CARD_VALUE = 10;
     
     // private static final HashMap<String, Integer> mValueMap = new HashMap<>();
@@ -55,7 +57,7 @@ public class Decks {
         } catch (NumberFormatException e) {
             // Face cards (kings, queens, and jacks) are counted as ten points.
             if (ACE_NAME.equals(name)) {
-                return HARD_HAND_VALUE; // Player can choose to be soft hand later
+                return SOFT_HAND_VALUE; // Player can choose to be soft hand later
             } else {
                 return FACE_CARD_VALUE;
             }
