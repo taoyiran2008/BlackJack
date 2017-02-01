@@ -27,3 +27,5 @@ easy to be ported into a Socket multi-player version.
 
 Since the main structure has been figured out, the Android version may be published
 out tomorrow, since I'm running short of time the UI may be ugly.
+====================
+Android project updated on 2017-2-2

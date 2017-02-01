@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="100dp"
+    android:layout_height="80dp" >
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:text="Tom"
+        android:background="#89D8E4"
+        android:textSize="12sp" />
+    
+    <LinearLayout
+        android:id="@+id/cards"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/name"
+        android:background="#C6EBE4"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cards"
+        android:background="#89D8E4"
+        android:textSize="12sp"
+        android:orientation="horizontal" >
+
+        <TextView
+                android:id="@+id/totalMoney"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textStyle="bold"
+                android:textColor="#FF6A0B"
+                android:text="100"/>
+        
+        <TextView
+                android:id="@+id/betInBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="10"/>
+        
+        <TextView
+                android:id="@+id/winLose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TBD"/>
+    </LinearLayout>
+
+</RelativeLayout>
