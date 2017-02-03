@@ -14,7 +14,7 @@ public class PolicyImpl extends PolicyAdapter {
 
 	@Override
 	public void hit(Player player, Card card) {
-		addCard(player, card);
+	    addCard(player, card);
 	}
 
 	@Override
@@ -48,6 +48,8 @@ public class PolicyImpl extends PolicyAdapter {
 		player.cards.add(card);
 		// If we got an ACE, firstly max it's value by using value 11, if bust, fall back to
 		// use value 1 to be failsafe.
+		// The logic is easy under awareness that there shouldn't be ACE with value
+		// of 11.
 		if (player.getTotalValue() + card.value > IPolicy.BLACK_JACK_VALUE) {
 			for (Card c : player.cards) {
 				if (Decks.ACE_NAME.equals(c.displayName)) {
@@ -73,12 +75,19 @@ public class PolicyImpl extends PolicyAdapter {
 	private static final int LIMITED_VALUE = 17;
 
 	@Override
-	public void draw(Player player, Card card) {
-		addCardForDealer(player, card);
-	}
+    public void draw(Player player, Card card) {
+	    addCardForDealer(player, card);
+    }
 
 	private void addCardForDealer(Player player, Card card) {
-		player.cards.add(card);
+        player.cards.add(card);
+        if (player.getTotalValue() + card.value > IPolicy.BLACK_JACK_VALUE) {
+            for (Card c : player.cards) {
+                if (Decks.ACE_NAME.equals(c.displayName)) {
+                    c.value = Decks.HARD_HAND_VALUE;
+                }
+            }
+        }
 		int totalValue = player.getTotalValue();
 		if (player.getTotalValue() < BLACK_JACK_VALUE) {
 			if (player.getCardsNumber() == HIGH_FIVE_NUMBER) {
@@ -103,31 +112,34 @@ public class PolicyImpl extends PolicyAdapter {
 
 	@Override
 	public void check(Player firstPlayer, Player secondPlayer) {
-		if (firstPlayer.status == IPolicy.STATUS_STAND_BY
-				|| firstPlayer.status == IPolicy.STATUS_OUT) {
-			// Not in checking state yet.
+	    // No need to check if status of firstPlayer is STATUS_STAND_BY
+	    // since he still can get another card until hit/draw change its
+	    // status.
+		if (firstPlayer.status == IPolicy.STATUS_STAND_BY) {
 			return;
 		}
-		// Only two cases: 1) check(player, dealer) in PlayerRoundState since dealer's cards can
-		// not be seen. 2) check(dealer, player) in DealerRoundState.
-		if (firstPlayer.type == Player.PLAYER_TYPE_NORMAL
+		// Only two cases:
+		// 1) check(player, dealer) in SecondRoundState and PlayerRoundState. Only
+		// check special cards type or if we get bust, and don't compare with the dealer
+		// since dealer's cards can not be seen.
+		// 2) check(dealer, player) in DealerRoundState. The status of players are
+		// fixed now after previous stages, so we only check the dealer against the
+		// remaining players(status is STATUS_END_TURN).
+		if (firstPlayer.type == Player.PLAYER_TYPE_PLAYER
 				&& secondPlayer.type == Player.PLAYER_TYPE_DEALER) {
 			if (firstPlayer.status == IPolicy.STATUS_BLACKJACK) {
 				// Win bonus 2x.
 				int moneyDelta = (int) ((RATIO_FOR_BLACKJACK - 1) * firstPlayer.betInBox);
 				firstPlayer.thrownBet(moneyDelta);
 				firstPlayer.winMoney(secondPlayer);
-				firstPlayer.endTurn();
 			} else if (firstPlayer.status == IPolicy.STATUS_HIGH_FIVE) {
 				// Win bonus 3x.
 				int moneyDelta = (int) ((RATIO_FOR_HIGH_FIVE - 1) * firstPlayer.betInBox);
 				firstPlayer.thrownBet(moneyDelta);
 				firstPlayer.winMoney(secondPlayer);
-				firstPlayer.endTurn();
 			} else if (firstPlayer.status == IPolicy.STATUS_BUST) {
 				// This is why endTurn should not integrated in winMoney.
 				secondPlayer.winMoney(firstPlayer);
-				firstPlayer.endTurn();
 			} /*else if (firstPlayer.status == IPolicy.STATUS_END_TURN) {
 				if (firstPlayer.getTotalValue() > secondPlayer.getTotalValue()) {
 					firstPlayer.winMoney(secondPlayer);
@@ -136,35 +148,28 @@ public class PolicyImpl extends PolicyAdapter {
 				}
 			}*/
 		} else if (firstPlayer.type == Player.PLAYER_TYPE_DEALER
-				&& secondPlayer.type == Player.PLAYER_TYPE_NORMAL) {
+				&& secondPlayer.type == Player.PLAYER_TYPE_PLAYER) {
 			if (firstPlayer.status == IPolicy.STATUS_BLACKJACK) {
 				// Win bonus 2x.
 				int moneyDelta = (int) ((RATIO_FOR_BLACKJACK - 1) * secondPlayer.betInBox);
 				secondPlayer.thrownBet(moneyDelta);
 				firstPlayer.winMoney(secondPlayer);
-				firstPlayer.endTurn();
-				secondPlayer.endTurn();
 			} else if (firstPlayer.status == IPolicy.STATUS_HIGH_FIVE) {
 				// Win bonus 3x.
 				int moneyDelta = (int) ((RATIO_FOR_HIGH_FIVE - 1) * firstPlayer.betInBox);
 				secondPlayer.thrownBet(moneyDelta);
 				firstPlayer.winMoney(secondPlayer);
-				firstPlayer.endTurn();
-				secondPlayer.endTurn();
 			} else if (firstPlayer.status == IPolicy.STATUS_BUST) {
 				secondPlayer.winMoney(firstPlayer);
-				firstPlayer.endTurn();
-				secondPlayer.endTurn();
 			} else if (firstPlayer.status == IPolicy.STATUS_END_TURN) {
 				if (firstPlayer.getTotalValue() > secondPlayer.getTotalValue()) {
 					firstPlayer.winMoney(secondPlayer);
 				} else if (firstPlayer.getTotalValue() < secondPlayer.getTotalValue()) {
 					secondPlayer.winMoney(firstPlayer);
 				} else {
-					// Pull.
+				    firstPlayer.status = IPolicy.STATUS_PUSH;
+				    secondPlayer.status = IPolicy.STATUS_PUSH;
 				}
-				firstPlayer.endTurn();
-				secondPlayer.endTurn();
 			}
 		}
 	}

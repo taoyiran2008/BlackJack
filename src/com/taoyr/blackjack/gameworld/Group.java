@@ -12,7 +12,7 @@ public class Group {
 	// Players take turns to be the dealer, after each set the role of dealer
 	// shifted to it's right-hand player.
 	public static final int ROUNDS_EACH_SET = 3;
-	public int set = 0;
+	public int set = 1;
 	public int round = 0;
 	public Player dealer;
 	public Player currentPlayer;
@@ -35,16 +35,14 @@ public class Group {
 		// Dealer is a rich guy.
 		for (int i = 0; i < num; i++) {
 			// The first player is initialized as the dealer.
-			int type = ((i == dealerIndex) ? Player.PLAYER_TYPE_DEALER
-					: Player.PLAYER_TYPE_NORMAL);
 			if (i == dealerIndex) {
-				dealer = new Player(1000, NAMES[i], type);
+				dealer = new Player(1000, NAMES[i], Player.PLAYER_TYPE_DEALER);
 				players.add(dealer);
-			} else if (i == dealerIndex + 1) {
-				currentPlayer = new Player(100, NAMES[i], type);
+			} else if (i == dealerIndex + 1) { // dealer's right hand
+				currentPlayer = new Player(100, NAMES[i], Player.PLAYER_TYPE_PLAYER);
 				players.add(currentPlayer);
 			} else {
-				players.add(new Player(100, NAMES[i], type));
+				players.add(new Player(100, NAMES[i], Player.PLAYER_TYPE_PLAYER));
 			}
 		}
 	}
@@ -53,7 +51,25 @@ public class Group {
 		return players.size();
 	}
 
-	private void shiftDealer() {
+	public int getTotalBetInBettingBox() {
+	    int total = 0;
+	    for (Player player : getPlayersInOrder()) {
+	        total += player.betInBox;
+        }
+	    return total;
+	}
+	
+    public int getTotalMoneyInPool() {
+        int total = 0;
+        for (Player player : getPlayersInOrder()) {
+            total += player.betInBox;
+            total += player.totalMoney;
+        }
+        total += dealer.totalMoney;
+        return total;
+    }
+
+	public void shiftDealer() {
 		int originalIndex = dealerIndex;
 
 		if (dealerIndex < getPlayersNumber() - 1) {
@@ -65,7 +81,7 @@ public class Group {
 		if (originalIndex > getPlayersNumber()) { // In case player has been removed
 			originalIndex = 0;
 		}
-		players.get(originalIndex).type = Player.PLAYER_TYPE_NORMAL;
+		players.get(originalIndex).type = Player.PLAYER_TYPE_PLAYER;
 		players.get(dealerIndex).type = Player.PLAYER_TYPE_DEALER;
 		dealer = players.get(dealerIndex);
 	}
@@ -75,30 +91,33 @@ public class Group {
 		for (Player player : players) {
 			player.cards = new ArrayList<>(5);
 		}
-		// Check to see if anyone should be kicked out for bankrupt.
-		ArrayList<Integer> ids = new ArrayList<>(); // Avoid ConcurrentModificationException.
-		boolean isDealerRemoved = false;
-		for (int i = 0; i < players.size(); i++) {
-			if (players.get(i).totalMoney < IPolicy.BET_MONEY_BOTTOM) {
-				ids.add(i);
-				if (!isDealerRemoved && i == dealerIndex) {
-					isDealerRemoved = true;
-				}
-			}
-		}
-		for (Integer i : ids) {
-			players.remove(i);
-		}
-		if (isDealerRemoved)
-			shiftDealer();
+		// removeBankruptPlayers();
 
 		if (round < ROUNDS_EACH_SET) {
 			round++;
 		} else {
-			round = 0;
+			round = 1;
 			set++;
 			shiftDealer();
 		}
+	}
+
+	private void removeBankruptPlayers() {
+	 // Check to see if anyone should be kicked out for bankrupt.
+        ArrayList<Integer> ids = new ArrayList<>(); // Avoid ConcurrentModificationException.
+        boolean isDealerRemoved = false;
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).totalMoney < IPolicy.BET_MONEY_BOTTOM) {
+                ids.add(i);
+                if (!isDealerRemoved && i == dealerIndex) {
+                    isDealerRemoved = true;
+                }
+            }
+        }
+        for (Integer i : ids) {
+            players.remove(i);
+        }
+        if (isDealerRemoved) shiftDealer();
 	}
 
 	/**

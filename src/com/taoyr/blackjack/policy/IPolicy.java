@@ -26,7 +26,22 @@ public interface IPolicy {
     public static final int STATUS_END_TURN = 4;
     // I'm out means no need to check this player before next round.
     // This state can be switched from other status like STATUS_BUST, STATUS_BLACKJACK.
-    public static final int STATUS_OUT = 5;
+    // public static final int STATUS_OUT = 5;
+    
+    // Redesign status for better UI description:
+    // 1) OUT can be separated into STATUS_BUST, STATUS_BLACKJACK
+    // STATUS_HIGH_FIVE, STATUS_WIN, STATUS_LOSE, STATUS_PUSH.
+    // 2) Only player shows win or lose or push, since dealer would check with
+    // several players, some lose, some win, we can't tell exactly.
+    // 3) Simple rule is that dealer got as much status as players, but he only
+    // cares about STATUS_STAND_BY and STATUS_END_TURN in DealerRoundState.
+
+    // Normal win by compare with another player, means no special cards type.
+    public static final int STATUS_WIN = 5;
+    public static final int STATUS_LOSE = 6;
+    public static final int STATUS_PUSH = 7;
+    // Out and clear of the game due to money insufficiency.
+    public static final int STATUS_OUT = 8;
 
     public static final int BET_MONEY_BOTTOM = 10; // bottom line is 10RMB
     public static final int BLACK_JACK_VALUE = 21;

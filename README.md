@@ -29,3 +29,30 @@ Since the main structure has been figured out, the Android version may be publis
 out tomorrow, since I'm running short of time the UI may be ugly.
 ====================
 Android project updated on 2017-2-2
+
+A demo with some bugs
+====================
+Android project updated on 2017-2-3
+
+Testing and trouble shooting. Fix a few minor bugs to make
+the game runnable and ready to play.
+
+Since the game is almost finished,
+Unit test will be added in next update.
+
+Change list:
+-Modify the size of ui elements to fit mainstream Android devices
+-Fix cards rendering trouble(removeAll views of old cards)
+-Some optimization to make this game more effective
+-add logic to restart game if current player is running out of cash
+-add logic to shift dealer and kick out ai player due to money issue
+-redesign status for better UI description
+-Identify current player and dealer, add highlight border to the players(out-black, normal-yellow, active-green)
+-add invisible card logic(one player can only see his own facedown card)
+-add group info panel, add time info as group info
+
+to do:
+-Add unit test
+-Further testing and trouble shooting
+
+

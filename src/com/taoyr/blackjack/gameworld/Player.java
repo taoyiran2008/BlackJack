@@ -10,11 +10,11 @@ import com.taoyr.blackjack.policy.PolicyImpl;
 /**
  * Basic data structure for a player(dealer) play games in a casino to describe
  * his/her information.
- * 
+ *
  * Player is the leading role, he got a wide variety of options to make, like he
  * can hit, stand, double or do something else according to the Policy he
  * complied with.
- * 
+ *
  * However dealer is the supporting role, he got far less options to make,
  * basically he just deal the cards to everyone, which in our case is taken over
  * by a Casino instance, but still he can draw cards. Good news is that people
@@ -22,7 +22,7 @@ import com.taoyr.blackjack.policy.PolicyImpl;
  */
 public class Player {
 
-	public static final int PLAYER_TYPE_NORMAL = 1;
+	public static final int PLAYER_TYPE_PLAYER = 1;
 	public static final int PLAYER_TYPE_DEALER = 2;
 
 	public ArrayList<Card> cards = new ArrayList<>(5); // 10 by default, but 5 is sufficient for us
@@ -31,8 +31,7 @@ public class Player {
 	public int id = -1;
 	public String name = "anonymous";
 	public int status = IPolicy.STATUS_STAND_BY;
-	public int type = PLAYER_TYPE_NORMAL;
-	public String result = "TBD";
+	public int type = PLAYER_TYPE_PLAYER;
 	// Protect the important member variable for security sake.
 	private IPolicy policyImpl = new PolicyImpl();
 	private static AtomicInteger idGenerator = new AtomicInteger(0);
@@ -78,28 +77,28 @@ public class Player {
 		totalMoney += money;
 		betInBox -= money;
 	}
-	
+
 	public void winMoney(Player player) {
-		if (type == PLAYER_TYPE_NORMAL && player.type == PLAYER_TYPE_DEALER) {
+		if (type == PLAYER_TYPE_PLAYER && player.type == PLAYER_TYPE_DEALER) {
 			totalMoney += betInBox * 2;
 			betInBox = 0;
 			player.totalMoney -= betInBox;
-		} else if (type == PLAYER_TYPE_DEALER && player.type == PLAYER_TYPE_NORMAL) {
+		} else if (type == PLAYER_TYPE_DEALER && player.type == PLAYER_TYPE_PLAYER) {
 			totalMoney += player.betInBox;
 			player.betInBox = 0;
 		}
-		result = "Win";
-		player.result = "Lose";
+		status = IPolicy.STATUS_WIN;
+		player.status = IPolicy.STATUS_LOSE;
 	}
-	
-	public void endTurn() {
-		status = IPolicy.STATUS_OUT;
-		if ("TBD".equals(result)) {
-			result = "Push";
-		}
-		showCards();
-	}
-	
+
+    public boolean startTurn(int bet) {
+        if (!thrownBet(bet)) {
+            return false;
+        }
+        status = IPolicy.STATUS_STAND_BY;
+        return true;
+    }
+
 	public void showCards() {
 		for (Card card : cards) {
 			if (card.visible == false) {
@@ -107,16 +106,7 @@ public class Player {
 			}
 		}
 	}
-	
-	public boolean startTurn(int bet) {
-		if (!thrownBet(bet)) {
-		    status = IPolicy.STATUS_OUT;
-			return false;
-		}
-		status = IPolicy.STATUS_STAND_BY;
-		return true;
-	}
-	
+
 	private static int generateId() {
 		return idGenerator.getAndIncrement();
 	}
@@ -149,11 +139,11 @@ public class Player {
 	public void draw(Card card) {
 		policyImpl.draw(this, card);
 	}
-	
+
 	public void check(Player player) {
 		policyImpl.check(this, player);
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
@@ -170,22 +160,30 @@ public class Player {
 		str.append("\t\t cardsNumber: " + getCardsNumber() + "\n");
 		str.append("\t\t totalValue: " + getTotalValue() + "\n");
 		str.append("\t\t winLose: " + getWinLose() + "\n");
-		if (status == IPolicy.STATUS_OUT) {
-			str.append("\t\t winLose: " + result + "\n");
-		} else {
-			str.append("\t\t winLose: TBD \n");
-		}
 		return str.toString();
 	}
-	
+
 	public String getWinLose() {
-	    if (status == IPolicy.STATUS_OUT) {
-	        return result;
-        } else {
-            return "TBD";
-        }
+	    switch (status) {
+        case IPolicy.STATUS_BLACKJACK:
+            return "BJACK";
+        case IPolicy.STATUS_BUST:
+            return "BUST";
+        case IPolicy.STATUS_HIGH_FIVE:
+            return "HIGH5";
+        case IPolicy.STATUS_WIN:
+            return "WIN";
+        case IPolicy.STATUS_LOSE:
+            return "LOSE";
+        case IPolicy.STATUS_PUSH:
+            return "PUSH";
+        case IPolicy.STATUS_OUT:
+            return "OUT";
+        default:
+            return "TBD"; // STATUS_END_TURN, STATUS_STAND_BY
+        } 
 	}
-	
+
 	public String getStatusDescription() {
 		switch (status) {
 		case IPolicy.STATUS_BLACKJACK:
@@ -200,6 +198,12 @@ public class Player {
 			return "out";
 		case IPolicy.STATUS_STAND_BY:
 			return "standby";
+		case IPolicy.STATUS_WIN:
+            return "win";
+		case IPolicy.STATUS_LOSE:
+            return "lose";
+		case IPolicy.STATUS_PUSH:
+            return "push";
 		default:
 			return "undefined";
 		}
