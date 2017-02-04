@@ -25,12 +25,11 @@
             android:id="@+id/timer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
             android:layout_weight="1"
-            android:textSize="8sp"
             android:format="00:00:00"
-            android:text="Chronometer" />
-
+            android:gravity="right"
+            android:text="Chronometer"
+            android:textSize="8sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -72,11 +71,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="set"
+            android:text="round"
             android:textSize="8sp" />
 
         <TextView
-            android:id="@+id/set_number"
+            android:id="@+id/round_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -98,11 +97,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="round"
+            android:text="set"
             android:textSize="8sp" />
 
         <TextView
-            android:id="@+id/round_number"
+            android:id="@+id/set_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -110,8 +109,7 @@
             android:text="1"
             android:textSize="8sp" />
     </LinearLayout>
-    
-    <LinearLayout
+    <LinearLayout
         android:layout_width="80dp"
         android:layout_height="10dp"
         android:layout_gravity="left"
@@ -136,7 +134,59 @@
             android:text="1"
             android:textSize="8sp" />
     </LinearLayout>
-    
+
+    <LinearLayout
+        android:layout_width="80dp"
+        android:layout_height="10dp"
+        android:layout_gravity="left"
+        android:layout_marginBottom="2dp"
+        android:background="#89D8E4"
+        android:gravity="left"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="min bet"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/min_bet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="1"
+            android:textSize="8sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="80dp"
+        android:layout_height="10dp"
+        android:layout_gravity="left"
+        android:layout_marginBottom="2dp"
+        android:background="#89D8E4"
+        android:gravity="left"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="bottom bet"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/bottom_bet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="1"
+            android:textSize="8sp" />
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="80dp"
         android:layout_height="10dp"
@@ -162,4 +212,31 @@
             android:text="1"
             android:textSize="8sp" />
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="80dp"
+        android:layout_height="10dp"
+        android:layout_gravity="left"
+        android:layout_marginBottom="2dp"
+        android:background="#89D8E4"
+        android:gravity="left"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="winner"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/winner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="1"
+            android:textSize="8sp" />
+    </LinearLayout>
+
 </LinearLayout>

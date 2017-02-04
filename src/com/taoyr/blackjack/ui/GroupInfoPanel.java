@@ -11,7 +11,14 @@ import android.widget.TextView;
 
 import com.taoyr.blackjack.R;
 import com.taoyr.blackjack.gameworld.Group;
+import com.taoyr.blackjack.gameworld.Player;
+import com.taoyr.blackjack.policy.IPolicy;
 
+/**
+ * A UI panel displays information of a group, the UI(layout) and relating logic are
+ * removed from casino.xml and CasinoActivity. This helps a lot to manage modules
+ * separately.
+ */
 public class GroupInfoPanel extends LinearLayout {
 
     private final Context mContext;
@@ -21,6 +28,9 @@ public class GroupInfoPanel extends LinearLayout {
     private TextView mRoundNumber;
     private TextView mTotalBet;
     private TextView mAllMoney;
+    private TextView mMinBet;
+    private TextView mBottomBet;
+    private TextView mWinner;
     private View mRoot;
 
     public GroupInfoPanel(Context context, AttributeSet attr) {
@@ -33,12 +43,15 @@ public class GroupInfoPanel extends LinearLayout {
         mRoundNumber = (TextView) findViewById(R.id.round_number);
         mTotalBet = (TextView) findViewById(R.id.total_bet);
         mAllMoney = (TextView) findViewById(R.id.total_money);
+        mMinBet = (TextView) findViewById(R.id.min_bet);
+        mBottomBet = (TextView) findViewById(R.id.bottom_bet);
+        mWinner = (TextView) findViewById(R.id.winner);
         
         mContext = context;
         initTimer();
     }
 
-    private void initTimer() {
+    public void initTimer() {
         mTimer.setBase(SystemClock.elapsedRealtime());
         int hour = (int) ((SystemClock.elapsedRealtime() - mTimer.getBase())/1000/60);
         mTimer.setFormat("0" + String.valueOf(hour) + ":%s");
@@ -46,10 +59,15 @@ public class GroupInfoPanel extends LinearLayout {
     }
 
     public void setContent(Group group) {
-        mMaxRound.setText("" + Group.ROUNDS_EACH_SET);
+        mMaxRound.setText("" + IPolicy.ROUNDS_EACH_SET);
         mSetNumber.setText("" + group.set);
         mRoundNumber.setText("" + group.round);
         mTotalBet.setText("" + group.getTotalBetInBettingBox());
         mAllMoney.setText("" + group.getTotalMoneyInPool());
+        mMinBet.setText("" + group.getMinBetInBettingBox());
+        mBottomBet.setText("" + IPolicy.BET_MONEY_BOTTOM);
+
+        Player winner = group.getWinner();
+        mWinner.setText((winner == null) ? "No winner" : winner.name);
     }
 }

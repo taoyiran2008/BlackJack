@@ -9,9 +9,6 @@ import com.taoyr.blackjack.util.Logger;
  * Could be several groups play at the same time in a casino.
  */
 public class Group {
-	// Players take turns to be the dealer, after each set the role of dealer
-	// shifted to it's right-hand player.
-	public static final int ROUNDS_EACH_SET = 3;
 	public int set = 1;
 	public int round = 0;
 	public Player dealer;
@@ -36,7 +33,7 @@ public class Group {
 		for (int i = 0; i < num; i++) {
 			// The first player is initialized as the dealer.
 			if (i == dealerIndex) {
-				dealer = new Player(1000, NAMES[i], Player.PLAYER_TYPE_DEALER);
+				dealer = new Player(100, NAMES[i], Player.PLAYER_TYPE_DEALER);
 				players.add(dealer);
 			} else if (i == dealerIndex + 1) { // dealer's right hand
 				currentPlayer = new Player(100, NAMES[i], Player.PLAYER_TYPE_PLAYER);
@@ -51,6 +48,16 @@ public class Group {
 		return players.size();
 	}
 
+    public int getMinBetInBettingBox() {
+        int total = 0;
+        for (Player player : getPlayersInOrder()) {
+            if (player.status != IPolicy.STATUS_OUT) {
+                total += IPolicy.BET_MONEY_BOTTOM;
+            }
+        }
+        return total;
+    }
+
 	public int getTotalBetInBettingBox() {
 	    int total = 0;
 	    for (Player player : getPlayersInOrder()) {
@@ -58,7 +65,7 @@ public class Group {
         }
 	    return total;
 	}
-	
+
     public int getTotalMoneyInPool() {
         int total = 0;
         for (Player player : getPlayersInOrder()) {
@@ -69,31 +76,64 @@ public class Group {
         return total;
     }
 
+    public Player getWinner() {
+        Player playerStandBy = null;
+        for (Player player : players) {
+            if (player.status != IPolicy.STATUS_OUT) {
+                if (playerStandBy == null) {
+                    playerStandBy = player;
+                } else {
+                    // Still got two active players.
+                    return null;
+                }
+            }
+        }
+        return playerStandBy;
+    }
+
 	public void shiftDealer() {
 		int originalIndex = dealerIndex;
 
-		if (dealerIndex < getPlayersNumber() - 1) {
-			dealerIndex++;
-		} else {
-			dealerIndex = 0;
-		}
-		// Shift roles.
-		if (originalIndex > getPlayersNumber()) { // In case player has been removed
-			originalIndex = 0;
-		}
-		players.get(originalIndex).type = Player.PLAYER_TYPE_PLAYER;
-		players.get(dealerIndex).type = Player.PLAYER_TYPE_DEALER;
-		dealer = players.get(dealerIndex);
+		// Find a round of circle to get a qualified dealer.
+		// The right hand player will be the one if he got enough money.
+		// Or the dealer would pass on to the next one until we get a qualified player.
+		// The worst chance is that we go a circle back to the dealer himself.
+		for (int i = 0; i < getPlayersNumber() - 1; i++) {
+		    if (dealerIndex < getPlayersNumber() - 1) {
+	            dealerIndex++;
+	        } else {
+	            dealerIndex = 0;
+	        }
+		    // Shift roles.
+	        //if (originalIndex > getPlayersNumber()) { // In case player has been removed
+	        //  originalIndex = 0;
+	        //}
+		    if (isDealerQualified(players.get(dealerIndex))) {
+	            players.get(originalIndex).type = Player.PLAYER_TYPE_PLAYER;
+	            players.get(dealerIndex).type = Player.PLAYER_TYPE_DEALER;
+	            dealer = players.get(dealerIndex);
+	            break;
+	        };
+        }
+	}
+	
+	public boolean isDealerQualified(Player player) {
+	    if (player.totalMoney < getMinBetInBettingBox()) {
+            return false;
+        }
+	    return true;
 	}
 
 	public void nextRound() {
-		// Reset cards.
 		for (Player player : players) {
+		    // Reset cards.
 			player.cards = new ArrayList<>(5);
+			// Retrieve bet.(NewRoundState -> NewRoundState)
+			player.retrieveBet();
 		}
 		// removeBankruptPlayers();
 
-		if (round < ROUNDS_EACH_SET) {
+		if (round < IPolicy.ROUNDS_EACH_SET) {
 			round++;
 		} else {
 			round = 1;

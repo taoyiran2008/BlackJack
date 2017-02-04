@@ -55,4 +55,16 @@ to do:
 -Add unit test
 -Further testing and trouble shooting
 
+====================
+Android project updated on 2017-2-4
 
+The game is quit playable by now.
+
+Change list:
+-Add winning condition so we can play on until we became the winner or lose the game
+-Modify logic to shift dealer less that dealer can't afford the minimum bet of all players
+-Add a custom dialog with animation to guide user restart or quit game
+-Some bug fix and performance optimization
+
+to do:
+-Add unit test

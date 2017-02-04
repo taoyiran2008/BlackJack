@@ -30,9 +30,12 @@ public class PolicyImpl extends PolicyAdapter {
 			return false;
 		} else {
 			// Take a single card and finish.
-			player.status = STATUS_END_TURN;
-			// We took a shot for big money, still may bust out.
+			// We took a shot for big money, still may bust out, or fortunately blackjack.
 			addCard(player, card);
+			if (player.status == IPolicy.STATUS_STAND_BY) {
+			    // Not allowed to hit another card.
+			    player.status = STATUS_END_TURN;
+            }
 			return true;
 		}
 	}
@@ -40,7 +43,7 @@ public class PolicyImpl extends PolicyAdapter {
 	@Override
 	public void surrender(Player player) {
 		// Give up a half-bet and retire from the game like we are busted.
-		player.status = STATUS_BUST;
+		player.status = STATUS_LOSE;
 		player.reduceBet(player.betInBox / 2);
 	}
 
@@ -92,8 +95,7 @@ public class PolicyImpl extends PolicyAdapter {
 		if (player.getTotalValue() < BLACK_JACK_VALUE) {
 			if (player.getCardsNumber() == HIGH_FIVE_NUMBER) {
 				player.status = STATUS_HIGH_FIVE;
-			}
-			if (totalValue < LIMITED_VALUE) {
+			} else if (totalValue < LIMITED_VALUE) {
 				player.status = STATUS_STAND_BY; // still hungry
 			} else {
 				player.status = STATUS_END_TURN; // I'm full
@@ -130,6 +132,8 @@ public class PolicyImpl extends PolicyAdapter {
 			if (firstPlayer.status == IPolicy.STATUS_BLACKJACK) {
 				// Win bonus 2x.
 				int moneyDelta = (int) ((RATIO_FOR_BLACKJACK - 1) * firstPlayer.betInBox);
+				// If dealer is short of cash after increasing bonus, nothing happens,
+				// player would will his normal share of money.
 				firstPlayer.thrownBet(moneyDelta);
 				firstPlayer.winMoney(secondPlayer);
 			} else if (firstPlayer.status == IPolicy.STATUS_HIGH_FIVE) {
@@ -154,20 +158,24 @@ public class PolicyImpl extends PolicyAdapter {
 				int moneyDelta = (int) ((RATIO_FOR_BLACKJACK - 1) * secondPlayer.betInBox);
 				secondPlayer.thrownBet(moneyDelta);
 				firstPlayer.winMoney(secondPlayer);
+				secondPlayer.status = IPolicy.STATUS_LOSE;
 			} else if (firstPlayer.status == IPolicy.STATUS_HIGH_FIVE) {
 				// Win bonus 3x.
 				int moneyDelta = (int) ((RATIO_FOR_HIGH_FIVE - 1) * firstPlayer.betInBox);
 				secondPlayer.thrownBet(moneyDelta);
 				firstPlayer.winMoney(secondPlayer);
+				secondPlayer.status = IPolicy.STATUS_LOSE;
 			} else if (firstPlayer.status == IPolicy.STATUS_BUST) {
 				secondPlayer.winMoney(firstPlayer);
+				secondPlayer.status = IPolicy.STATUS_WIN;
 			} else if (firstPlayer.status == IPolicy.STATUS_END_TURN) {
 				if (firstPlayer.getTotalValue() > secondPlayer.getTotalValue()) {
 					firstPlayer.winMoney(secondPlayer);
+					secondPlayer.status = IPolicy.STATUS_LOSE;
 				} else if (firstPlayer.getTotalValue() < secondPlayer.getTotalValue()) {
 					secondPlayer.winMoney(firstPlayer);
+					secondPlayer.status = IPolicy.STATUS_WIN;
 				} else {
-				    firstPlayer.status = IPolicy.STATUS_PUSH;
 				    secondPlayer.status = IPolicy.STATUS_PUSH;
 				}
 			}

@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.taoyr.blackjack.R;
-import com.taoyr.blackjack.gameworld.Card;
 import com.taoyr.blackjack.gameworld.Group;
 import com.taoyr.blackjack.gameworld.Player;
 import com.taoyr.blackjack.policy.IPolicy;
@@ -71,7 +70,12 @@ public class PlayerBlock extends LinearLayout {
 
             // Re-rendering cards.
             mCardsContainer.removeAllViews();
-            for (Card card : player.cards) {
+            for (int i = 0; i < player.cards.size(); i++) {
+                CardBlock cardBlock = new CardBlock(mContext, null);
+                cardBlock.setContent(player.cards.get(i));
+                mCardsContainer.addView(cardBlock);
+            }
+/*            for (Card card : player.cards) {
                 CardBlock cardBlock = new CardBlock(mContext, null);
                 cardBlock.setContent(card);
                 // We can make cards stack on top of each other by using
@@ -83,7 +87,7 @@ public class PlayerBlock extends LinearLayout {
 //                       RelativeLayout.LayoutParams.MATCH_PARENT,
 //                       RelativeLayout.LayoutParams.WRAP_CONTENT);
                 mCardsContainer.addView(cardBlock);
-            }
+            }*/
         }
     }
 }

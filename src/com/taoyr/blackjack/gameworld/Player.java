@@ -80,17 +80,20 @@ public class Player {
 
 	public void winMoney(Player player) {
 		if (type == PLAYER_TYPE_PLAYER && player.type == PLAYER_TYPE_DEALER) {
-			totalMoney += betInBox * 2;
-			betInBox = 0;
-			player.totalMoney -= betInBox;
+		    player.totalMoney -= betInBox;
+		    // Take back his bet and win money the same amounts as bet from dealer.
+			totalMoney += betInBox;
+			retrieveBet();
 		} else if (type == PLAYER_TYPE_DEALER && player.type == PLAYER_TYPE_PLAYER) {
 			totalMoney += player.betInBox;
 			player.betInBox = 0;
 		}
-		status = IPolicy.STATUS_WIN;
-		player.status = IPolicy.STATUS_LOSE;
 	}
 
+	public void retrieveBet() {
+	    totalMoney += betInBox;
+	    betInBox = 0;
+	}
     public boolean startTurn(int bet) {
         if (!thrownBet(bet)) {
             return false;
@@ -120,8 +123,8 @@ public class Player {
 		policyImpl.stand(this);
 	}
 
-	public void doubleWager(Card card) {
-		policyImpl.doubleWager(this, card);
+	public boolean doubleWager(Card card) {
+		return policyImpl.doubleWager(this, card);
 	}
 
 	public void surrender() {
@@ -166,11 +169,11 @@ public class Player {
 	public String getWinLose() {
 	    switch (status) {
         case IPolicy.STATUS_BLACKJACK:
-            return "BJACK";
+            return "BLACKJACK";
         case IPolicy.STATUS_BUST:
             return "BUST";
         case IPolicy.STATUS_HIGH_FIVE:
-            return "HIGH5";
+            return "HIGHFIVE";
         case IPolicy.STATUS_WIN:
             return "WIN";
         case IPolicy.STATUS_LOSE:

@@ -23,7 +23,7 @@ public class CommonUtils {
 	}
 	
 	public static void showToast(Context context, String msg) {
-	    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+	    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
 	}
 	
 	public static void sleepInSec(int sec) {
@@ -33,4 +33,12 @@ public class CommonUtils {
             e.printStackTrace();
         }
 	}
+	
+    public static void sleepInMs(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }
